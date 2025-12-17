@@ -23,7 +23,7 @@ if prompt := st.chat_input("Enter something"):
     st.session_state.query.append(
         {"role": "user", "content": prompt}
     )
-    db_data = (prompt, )
+    db_data = (prompt, ) # Adding second argument so that the first arg is viewed as tuple and not a container of individual alphabets as string - python behavior
     cursor.execute(insert_query, db_data)
     #cursor.execute(f"""INSERT INTO messages(session_id, role, content) VALUES ("session_id1","user","{prompt}")""")
     conn.commit()
