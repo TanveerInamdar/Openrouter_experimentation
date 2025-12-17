@@ -26,12 +26,10 @@ for msg in st.session_state.query:  # Initialize this for each call
     st.chat_message(msg["role"]).write(msg["content"])
 
 if st.button("Clear current chat", width=100):
-    if os.path.exists(DB_FILE):
-        conn.close()
-        os.remove(DB_FILE)
-        create_db()
-        st.session_state.query = []
-        st.rerun()
+    cursor.execute("DELETE FROM messages where session_id = ? ", ("session_id1",))
+    conn.commit()
+    st.session_state.query = []
+    st.rerun()
 
 if prompt := st.chat_input("Enter something"):
 
