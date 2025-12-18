@@ -14,6 +14,10 @@ conn = sqlite3.connect("chat_history.db")
 cursor = conn.cursor()
 insert_query = f"""INSERT INTO messages(session_id, role, content) VALUES ("session_id1",?,?)"""
 
+with st.sidebar:
+    st.title("Past Chats")
+    st.button("Click me")
+
 if st.button("Clear current chat", width=100):
     cursor.execute("DELETE FROM messages where session_id = ? ", ("session_id1",))
     conn.commit()
