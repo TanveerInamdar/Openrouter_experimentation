@@ -1,8 +1,19 @@
 # This will create the file 'chat_history.db' if it doesn't exist
 import sqlite3
 def create_db():
-    conn = sqlite3.connect('chat_history.db')
+    conn = sqlite3.connect(f'chat_history.db')
     c = conn.cursor()
+
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS sessions
+        (
+        session_id TEXT PRIMARY KEY,
+        title TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        
+        )""",
+              )
+
 
     c.execute('''
         CREATE TABLE IF NOT EXISTS messages (
@@ -12,7 +23,8 @@ def create_db():
             content TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
+    '''
+    )
 
     conn.commit()
     conn.close()
