@@ -3,6 +3,7 @@ import requests
 import json
 from dotenv import load_dotenv
 load_dotenv()
+import uuid
 def get_response(message):
   OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
   response = requests.post(
@@ -20,4 +21,5 @@ def get_response(message):
   res = (response.json()["choices"][0]["message"]["content"])
   return res
 
-
+def new_chat():
+  session_id = uuid.uuid4()
