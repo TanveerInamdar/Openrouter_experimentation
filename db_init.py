@@ -9,10 +9,9 @@ def create_db():
         (
         session_id TEXT PRIMARY KEY,
         title TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         
-        )""",
-              )
+        )""")
 
 
     c.execute('''
@@ -21,10 +20,10 @@ def create_db():
             session_id TEXT NOT NULL,
             role TEXT NOT NULL,
             content TEXT NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    '''
-    )
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(session_id) REFERENCES sessions(session_id)
+            )
+        ''')
 
     conn.commit()
     conn.close()
