@@ -27,8 +27,13 @@ with st.sidebar:
     cursor.execute("SELECT session_id FROM sessions")
     past_chat_IDs = cursor.fetchall()
     for ID in past_chat_IDs:
-        st.button(f"{ID}")
-    # TODO : Add functionality to access these chats.
+        string_ID = ID[0]
+        if st.button(f"{string_ID}"):
+            st.session_state.session_id = string_ID
+            if "query" in st.session_state:
+                st.session_state.query = []
+            st.rerun()
+
     st.title("Past Chats")
     if st.button("Clear current chat", width=100):
         cursor.execute("DELETE FROM messages where session_id = ? ", (current_session_id,))
