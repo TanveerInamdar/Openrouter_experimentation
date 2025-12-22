@@ -32,7 +32,7 @@ with st.sidebar:
             st.session_state.session_id = string_ID
             if "query" in st.session_state:
                 st.session_state.query = []
-            conn.close()
+            conn.close() #Manual Close as if the code hits this block, it never reaches the script end and never terminates connection
             st.rerun()
 
     st.title("Past Chats")
