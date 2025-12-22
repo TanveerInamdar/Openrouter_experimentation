@@ -75,3 +75,5 @@ if prompt := st.chat_input("Enter something"):
     cursor.execute(insert_query,(current_session_id,"Assistant", result))
     conn.commit()
     st.chat_message("assistant").write(result)
+
+ 
