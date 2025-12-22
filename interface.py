@@ -32,6 +32,7 @@ with st.sidebar:
             st.session_state.session_id = string_ID
             if "query" in st.session_state:
                 st.session_state.query = []
+            conn.close()
             st.rerun()
 
     st.title("Past Chats")
@@ -76,4 +77,4 @@ if prompt := st.chat_input("Enter something"):
     conn.commit()
     st.chat_message("assistant").write(result)
 
- 
+conn.close()
