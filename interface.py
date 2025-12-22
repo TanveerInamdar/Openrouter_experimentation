@@ -37,9 +37,11 @@ with st.sidebar:
 
     st.title("Past Chats")
     if st.button("Clear current chat", width=100):
+        cursor.execute("DELETE FROM sessions WHERE session_id = ?", (current_session_id,))
         cursor.execute("DELETE FROM messages where session_id = ? ", (current_session_id,))
         conn.commit()
         st.session_state.query = []
+        conn.close()
         st.rerun()
     #if st.button("New Chat"):
 
