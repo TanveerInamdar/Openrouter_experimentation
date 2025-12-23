@@ -25,38 +25,7 @@ st.title(f"{x}")
 
 cursor.execute(f"INSERT OR IGNORE INTO sessions(session_id, title) VALUES (?, ?)", (current_session_id, "New Chat"))
 
-
 insert_query = f"""INSERT INTO messages(session_id, role, content) VALUES (?,?,?)"""
-
-with st.sidebar:
-    cursor.execute("SELECT session_id FROM sessions")
-    past_chat_IDs = cursor.fetchall()
-    for ID in past_chat_IDs:
-        string_ID = ID[0]
-        if st.button(f"{string_ID}"):
-            st.session_state.session_id = string_ID
-            if "query" in st.session_state:
-                st.session_state.query = []
-            conn.close() #Manual Close as if the code hits this block, it never reaches the script end and never terminates connection
-            st.rerun()
-
-    st.title("Past Chats")
-    if st.button("Clear current chat", width=100):
-        cursor.execute("DELETE FROM sessions WHERE session_id = ?", (current_session_id,))
-        cursor.execute("DELETE FROM messages where session_id = ? ", (current_session_id,))
-        conn.commit()
-        st.session_state.query = []
-        conn.commit()
-        conn.close()
-        st.rerun()
-    if st.button("New Chat"):
-        st.session_state.session_id = str(uuid.uuid4())
-
-        current_session_id = st.session_state.session_id
-        if "query" in st.session_state:
-            st.session_state.query = []
-        conn.close()
-        st.rerun()
 
 cursor.execute('SELECT role, content FROM messages WHERE session_id = ?', (current_session_id,))
 rows = cursor.fetchall()
@@ -85,6 +54,7 @@ if prompt := st.chat_input("Enter something"):
         x = new_chat(prompt)
         cursor.execute("UPDATE sessions set title = ? where session_id = ?", (x, current_session_id,))
 
+
     st.chat_message("user").write(prompt)
     with st.spinner("Hold on..."):
         result = get_response(st.session_state.query)
@@ -97,4 +67,38 @@ if prompt := st.chat_input("Enter something"):
     conn.commit()
     st.chat_message("assistant").write(result)
 
+
+with st.sidebar:
+    cursor.execute("SELECT title, session_id FROM sessions")
+    past_chat_IDs = cursor.fetchall()
+    for ID in past_chat_IDs:
+        chat_title = ID[0]
+        unique_chat_key = ID[1]
+        if st.button(label=chat_title, key=unique_chat_key):
+            st.session_state.session_id = unique_chat_key
+            if "query" in st.session_state:
+                st.session_state.query = []
+            conn.close() #Manual Close as if the code hits this block, it never reaches the script end and never terminates connection
+            st.rerun()
+
+    st.title("Past Chats")
+    if st.button("Clear current chat", width=100):
+        cursor.execute("DELETE FROM sessions WHERE session_id = ?", (current_session_id,))
+        cursor.execute("DELETE FROM messages where session_id = ? ", (current_session_id,))
+        conn.commit()
+        st.session_state.query = []
+        conn.commit()
+        conn.close()
+        st.rerun()
+    if st.button("New Chat"):
+        st.session_state.session_id = str(uuid.uuid4())
+
+        current_session_id = st.session_state.session_id
+        if "query" in st.session_state:
+            st.session_state.query = []
+        conn.close()
+        st.rerun()
 conn.close()
+
+
+#TODO : Chats are in reverse Chronological order. Fix that ASAP
