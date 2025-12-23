@@ -25,6 +25,10 @@ def create_db():
             )
         ''')
 
+    c.execute('''
+    CREATE INDEX IF NOT EXISTS idx_session_id ON messages(session_id)
+    ''')
+
     conn.commit()
     conn.close()
     print("done")
