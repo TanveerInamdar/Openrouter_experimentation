@@ -27,7 +27,7 @@ cursor.execute(f"INSERT OR IGNORE INTO sessions(session_id, title) VALUES (?, ?)
 
 insert_query = f"""INSERT INTO messages(session_id, role, content) VALUES (?,?,?)"""
 
-cursor.execute('SELECT role, content FROM messages WHERE session_id = ?', (current_session_id,))
+cursor.execute('SELECT role, content FROM messages WHERE session_id = ? ', (current_session_id,))
 rows = cursor.fetchall()
 if "query" not in st.session_state:
     st.session_state.query = []
@@ -69,7 +69,7 @@ if prompt := st.chat_input("Enter something"):
 
 
 with st.sidebar:
-    cursor.execute("SELECT title, session_id FROM sessions")
+    cursor.execute("SELECT title, session_id FROM sessions ORDER BY created_at DESC")
     past_chat_IDs = cursor.fetchall()
     for ID in past_chat_IDs:
         chat_title = ID[0]
@@ -99,6 +99,3 @@ with st.sidebar:
         conn.close()
         st.rerun()
 conn.close()
-
-
-#TODO : Chats are in reverse Chronological order. Fix that ASAP
