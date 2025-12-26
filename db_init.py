@@ -3,7 +3,7 @@ import sqlite3
 def create_db():
     conn = sqlite3.connect(f'chat_history.db')
     c = conn.cursor()
-
+    c.execute("PRAGMA journal_mode=WAL;")
     c.execute("""
         CREATE TABLE IF NOT EXISTS sessions
         (
@@ -21,10 +21,12 @@ def create_db():
             role TEXT NOT NULL,
             content TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(session_id) REFERENCES sessions(session_id)
-            )
+            FOREIGN KEY(session_id) REFERENCES sessions(session_id),
+            state TEXT DEFAULT 'Completed'
+            ) 
         ''')
 
+    c.execute('CREATE INDEX IF NOT EXISTS idx_state ON messages(state)')
     c.execute('''
     CREATE INDEX IF NOT EXISTS idx_session_id ON messages(session_id)
     ''')
