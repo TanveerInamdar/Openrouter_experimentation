@@ -21,8 +21,8 @@ def create_db():
             role TEXT NOT NULL,
             content TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(session_id) REFERENCES sessions(session_id),
-            state TEXT DEFAULT 'Completed'
+            state TEXT DEFAULT 'Completed',
+            FOREIGN KEY(session_id) REFERENCES sessions(session_id)
             ) 
         ''')
 
