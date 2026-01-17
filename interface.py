@@ -1,14 +1,13 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
 from main import get_response, new_chat
-import csv
 import sqlite3
 import _sqlite3
 import os
 from db_init import create_db
 import uuid
 import random
+import time
+
 
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
@@ -25,7 +24,7 @@ st.title(f"{x}")
 
 cursor.execute(f"INSERT OR IGNORE INTO sessions(session_id, title) VALUES (?, ?)", (current_session_id, "New Chat"))
 
-insert_query = f"""INSERT INTO messages(session_id, role, content) VALUES (?,?,?)"""
+insert_query = f"""INSERT INTO messages(session_id, role, content, state) VALUES (?,?,?,?)"""
 
 cursor.execute('SELECT role, content FROM messages WHERE session_id = ? ', (current_session_id,))
 rows = cursor.fetchall()
@@ -43,29 +42,25 @@ if prompt := st.chat_input("Enter something"):
 
     # Store user message
     st.session_state.query.append(
-        {"role": "user", "content": prompt}
+        {"role": "User", "content": prompt}
     )
-    cursor.execute(insert_query,(current_session_id,"user", prompt))
+    cursor.execute(insert_query,(current_session_id,"User", prompt, "Pending"))
     conn.commit()
-    chat_title = cursor.execute("SELECT title from sessions WHERE session_id = ?", (current_session_id,))
-    title_result = chat_title.fetchall()[0][0]
-    print("title changed")
-    if title_result == "New Chat":
-        x = new_chat(prompt)
-        cursor.execute("UPDATE sessions set title = ? where session_id = ?", (x, current_session_id,))
 
-
-    st.chat_message("user").write(prompt)
+    st.chat_message("User").write(prompt)
     with st.spinner("Hold on..."):
-        result = get_response(st.session_state.query)
 
-    st.session_state.query.append(
-        {"role": "assistant", "content": result}
-    )
-
-    cursor.execute(insert_query,(current_session_id,"Assistant", result))
-    conn.commit()
-    st.chat_message("assistant").write(result)
+        while True:
+            conn = sqlite3.connect(DB_FILE)
+            cursor = conn.cursor()
+            curr_state = cursor.execute("SELECT state from messages WHERE session_id = ? ORDER BY id desc LIMIT 1", (current_session_id,))
+            state_result = curr_state.fetchone()
+            if state_result[0] == "Completed":
+                conn.close()
+                break
+            time.sleep(0.1)
+            conn.close()
+        st.rerun()
 
 
 with st.sidebar:
