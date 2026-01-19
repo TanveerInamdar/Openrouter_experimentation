@@ -28,9 +28,8 @@ def get_response(message):
 
 
 
-def new_chat(message):
+def new_chat(message:str):
   prompt = "THis is a API call from a chat based AI app. I need you to look at the user's message and make a chat name and return ONLY the title of the chat. Dont return ANYTHING ELSE. Your job is to think of what the chat's topic is about and make a name for it. Example: if someone asks you a Calculus problem, dont put the problem as the chat name. You should say the chat name is something like: Calculus solving, Calculus Question. ALso avoid generalized names like General chat or general discussion. The aim is to have a chat title where the viewer knows what chat it was just by looking at the title."
-  final_message = str(message) + str(prompt)
   OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
   messages = [

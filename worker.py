@@ -47,7 +47,7 @@ def backend_worker():
                 conn.close()
                 print(f"Worker Completed for chat title {title_result}")
                 if title_result == "New Chat":
-                    x = new_chat(query)
+                    x = new_chat(result)
                     DB_FILE = "chat_history.db"
                     conn = sqlite3.connect(DB_FILE)
                     conn.execute("PRAGMA journal_mode=WAL;")
