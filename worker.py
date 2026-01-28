@@ -43,7 +43,14 @@ def backend_worker():
                 cursor = conn.cursor()
                 chat_title = cursor.execute("SELECT title from sessions WHERE session_id = ?", (current_session_id,))
 
-                title_result = chat_title.fetchall()[0][0]
+                title_rows = cursor.fetchall()
+
+                if title_rows:
+                    title_result = title_rows[0][0]
+                    print(f"Current title: {title_result}")
+                else:
+                    print(f"Warning: Session {current_session_id} not found in sessions table.")
+                    title_result = "New Chat"
                 conn.close()
                 print(f"Worker Completed for chat title {title_result}")
                 if title_result == "New Chat":
