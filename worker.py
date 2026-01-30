@@ -17,7 +17,7 @@ def backend_worker():
         conn.execute("PRAGMA journal_mode=WAL;")
         cursor = conn.cursor()
         try:
-            cursor.execute("SELECT id, session_id, content, state FROM messages WHERE state = 'Pending' LIMIT 1")
+            cursor.execute("SELECT id, session_id, content, state FROM messages WHERE state = 'Pending' OR state = 'Failed' LIMIT 1")
             row = cursor.fetchone()
             if row:
                 msg_id = row[0]

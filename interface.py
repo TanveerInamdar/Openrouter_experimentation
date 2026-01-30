@@ -19,11 +19,6 @@ DB_FILE = "chat_history.db"
 welcome_statements = ["Hey Tan, what's on your mind? ", "Hello, Tanveer", "What's up", "Greetings!", "Howdy!"]
 x = random.choice(welcome_statements)
 st.title(f"{x}")
-#
-# conn = sqlite3.connect(DB_FILE)
-# cursor = conn.cursor()
-# cursor.execute(f"INSERT OR IGNORE INTO sessions(session_id, title) VALUES (?, ?)", (current_session_id, "New Chat"))
-# conn.commit()
 
 insert_query = f"""INSERT INTO messages(session_id, role, content, state) VALUES (?,?,?,?)"""
 conn = sqlite3.connect(DB_FILE)
@@ -52,9 +47,10 @@ with st.sidebar:
         conn = sqlite3.connect(DB_FILE)
         cursor = conn.cursor()
         cursor.execute("UPDATE sessions SET model = ? WHERE session_id = ?", (model_choice, current_session_id))
-        print("Updated AI Model: ", model_choice)
+        print("Updated Model Choice: ", model_choice)
         conn.commit()
         conn.close()
+        current_model = model_choice
 
     if st.button("Clear current chat", width=100):
         DB_FILE = "chat_history.db"
@@ -110,8 +106,12 @@ if prompt := st.chat_input("Enter something"):
 
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
+
     cursor.execute(f"INSERT OR IGNORE INTO sessions(session_id, title) VALUES (?, ?)", (current_session_id, "New Chat"))
+    cursor.execute("UPDATE sessions SET model = ? WHERE session_id = ?", (current_model, current_session_id))
+    print("Updated AI Model: ", current_model)
     conn.commit()
+
     insert_query = f"""INSERT INTO messages(session_id, role, content, state) VALUES (?,?,?,?)"""
 
     cursor.execute('SELECT role, content FROM messages WHERE session_id = ? ', (current_session_id,))
