@@ -30,9 +30,31 @@ conn = sqlite3.connect(DB_FILE)
 cursor = conn.cursor()
 cursor.execute('SELECT role, content FROM messages WHERE session_id = ? ', (current_session_id,))
 rows = cursor.fetchall()
-conn.close()
+cursor.execute('SELECT model FROM sessions WHERE session_id = ?', (current_session_id,))
+current_model = 'openai/gpt-oss-20b:free'
+model_result = cursor.fetchone()
 
+if model_result and model_result[0]:
+    current_model = model_result[0]
+
+conn.close()
 with st.sidebar:
+
+    if model_choice := st.selectbox(
+            "What model should we use?",
+            final_models,
+            index=None,
+            placeholder=f"{current_model} model",
+            key=f"model_select_{current_session_id}"
+
+    ):
+        st.write("You selected:", model_choice)
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE sessions SET model = ? WHERE session_id = ?", (model_choice, current_session_id))
+        print("Updated AI Model: ", model_choice)
+        conn.commit()
+        conn.close()
 
     if st.button("Clear current chat", width=100):
         DB_FILE = "chat_history.db"
@@ -53,7 +75,7 @@ with st.sidebar:
         current_session_id = st.session_state.session_id
         if "query" in st.session_state:
             st.session_state.query = []
-        st.rerun()
+        st.rerun(scope="app")
 
     st.divider()
     st.title("Past Chats")
@@ -73,7 +95,6 @@ with st.sidebar:
                 st.session_state.query = []
             conn.close() #Manual Close as if the code hits this block, it never reaches the script end and never terminates connection
             st.rerun()
-
 
 if "query" not in st.session_state:
     st.session_state.query = []
@@ -121,14 +142,4 @@ if prompt := st.chat_input("Enter something"):
             time.sleep(0.1)
             conn.close()
         st.rerun()
-model_choice = st.selectbox(
-        "What model should we use?",
-        final_models,
-        index=None,
-        placeholder="Select AI model...",
 
-    )
-
-st.write("You selected:", model_choice)
-
-conn.close()
