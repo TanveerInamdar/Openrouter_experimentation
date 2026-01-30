@@ -1,4 +1,4 @@
-from main import get_response, new_chat
+from main import get_response, new_chat, model_chat
 import sqlite3
 import time
 
@@ -24,14 +24,20 @@ def backend_worker():
                 current_session_id = row[1]
 
                 cursor.execute('SELECT role, content FROM messages WHERE session_id = ? ', (current_session_id,))
+
                 rows = cursor.fetchall()
+
+                cursor.execute('SELECT model FROM sessions WHERE session_id = ?', (current_session_id,))
+                model_name = cursor.fetchone()[0]
                 conn.close()
+                print(model_name)
 
                 query = []
                 for query_row in rows:
                     # row[0] is role, row[1] is content
                     query.append({"role": query_row[0].lower(), "content": query_row[1]})
-                result = get_response(query)
+                result = model_chat(query, model_name)
+                print("Called API with model: ", model_name)
 
                 query.append(
                     {"role": "assistant", "content": result}
