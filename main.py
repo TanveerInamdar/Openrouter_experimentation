@@ -51,3 +51,26 @@ def new_chat(message:str):
 
   res = (response.json()["choices"][0]["message"]["content"])
   return res
+
+
+def model_chat(message , model_name:str):
+  OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+  response = requests.post(
+    url="https://openrouter.ai/api/v1/chat/completions",
+    headers={
+      "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+      "Content-Type": "application/json",
+    },
+    json={
+      "model": f"{model_name}",
+      "messages": message,
+    }
+  )
+
+  response_json = response.json()
+  if "choices" not in response_json:
+    print("API ERROR:", response_json)
+    return "ERROR"
+  res = (response.json()["choices"][0]["message"]["content"])
+
+  return res
