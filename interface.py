@@ -87,20 +87,11 @@ with st.sidebar:
         unique_chat_key = ID[1]
         if st.button(label=chat_title, key=unique_chat_key):
             st.session_state.session_id = unique_chat_key
-            if "query" in st.session_state:
-                st.session_state.query = []
             conn.close() #Manual Close as if the code hits this block, it never reaches the script end and never terminates connection
             st.rerun()
 
-if "query" not in st.session_state:
-    st.session_state.query = []
-    for row in rows:
-        # row[0] is role, row[1] is content
-        st.session_state.query.append({"role": row[0], "content": row[1]})
-
 for row in rows:
     st.chat_message(row[0]).write(row[1])
-
 
 if prompt := st.chat_input("Enter something"):
 
@@ -119,9 +110,6 @@ if prompt := st.chat_input("Enter something"):
     conn.close()
 
     # Store user message
-    st.session_state.query.append(
-        {"role": "User", "content": prompt}
-    )
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute(insert_query,(current_session_id,"User", prompt, "Pending"))
