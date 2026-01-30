@@ -1,4 +1,4 @@
-from main import get_response, new_chat
+from main import get_response, new_chat, model_chat
 import sqlite3
 import time
 
@@ -24,14 +24,20 @@ def backend_worker():
                 current_session_id = row[1]
 
                 cursor.execute('SELECT role, content FROM messages WHERE session_id = ? ', (current_session_id,))
+
                 rows = cursor.fetchall()
+
+                cursor.execute('SELECT model FROM sessions WHERE session_id = ?', (current_session_id,))
+                model_name = cursor.fetchone()[0]
                 conn.close()
+                print(model_name)
 
                 query = []
                 for query_row in rows:
                     # row[0] is role, row[1] is content
                     query.append({"role": query_row[0].lower(), "content": query_row[1]})
-                result = get_response(query)
+                result = model_chat(query, model_name)
+                print("Called API with model: ", model_name)
 
                 query.append(
                     {"role": "assistant", "content": result}
@@ -43,7 +49,14 @@ def backend_worker():
                 cursor = conn.cursor()
                 chat_title = cursor.execute("SELECT title from sessions WHERE session_id = ?", (current_session_id,))
 
-                title_result = chat_title.fetchall()[0][0]
+                title_rows = cursor.fetchall()
+
+                if title_rows:
+                    title_result = title_rows[0][0]
+                    print(f"Current title: {title_result}")
+                else:
+                    print(f"Warning: Session {current_session_id} not found in sessions table.")
+                    title_result = "New Chat"
                 conn.close()
                 print(f"Worker Completed for chat title {title_result}")
                 if title_result == "New Chat":
