@@ -93,6 +93,29 @@ with st.sidebar:
 for row in rows:
     st.chat_message(row[0]).write(row[1])
 
+conn = sqlite3.connect(DB_FILE)
+cursor = conn.cursor()
+curr_state = cursor.execute("SELECT state from messages WHERE session_id = ? ORDER BY id desc LIMIT 1",
+                            (current_session_id,))
+latest_message_status = curr_state.fetchone()
+conn.close()
+if latest_message_status and latest_message_status[0] == 'Pending':
+    print("Pending API call detected. Started Pending answer workflow")
+    with st.spinner("Hold on..."):
+
+        while True:
+            with sqlite3.connect(DB_FILE) as conn:
+                cursor = conn.cursor()
+                curr_state = cursor.execute("SELECT state from messages WHERE session_id = ? ORDER BY id desc LIMIT 1",
+                                            (current_session_id,))
+                latest_message_status = curr_state.fetchone()
+                if latest_message_status[0] != "Pending":
+                    conn.close()
+                    break
+                time.sleep(0.1)
+                conn.close()
+        st.rerun()
+
 if prompt := st.chat_input("Enter something"):
 
     conn = sqlite3.connect(DB_FILE)
@@ -130,4 +153,6 @@ if prompt := st.chat_input("Enter something"):
             time.sleep(0.1)
             conn.close()
         st.rerun()
+
+
 
