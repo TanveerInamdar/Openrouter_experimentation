@@ -1,7 +1,7 @@
 # This will create the file 'chat_history.db' if it doesn't exist
 import sqlite3
 def create_db():
-    conn = sqlite3.connect(f'chat_history.db')
+    conn = sqlite3.connect('chat_history.db')
     c = conn.cursor()
     c.execute("PRAGMA journal_mode=WAL;")
     c.execute("""
