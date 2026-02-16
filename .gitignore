@@ -4,6 +4,7 @@ chat_history.db
 chat_history.db-shm
 chat_history.db-wal
 checker.py
-
+.dockerignore
+next_steps.md
 __pycache__/
 *.pyc
